@@ -9,7 +9,7 @@ class NegociacaoController {
         this._negociacoesView = new NegociacoesView($('#negociacoesView'));
 
         this._listaNegociacoes = new Bind(new ListaNegociacoes(),
-            this._negociacoesView,'adiciona', 'esvazia');
+            this._negociacoesView, 'adiciona', 'esvazia');
 
         this._mensagemView = new MensagemView($('#mensagem'));
 
@@ -24,10 +24,25 @@ class NegociacaoController {
         this._limpaFormulario();
     }
 
+    importaNegociacoes() {
+        let service = new NegociacaoService();
+
+        Promise.all([service.obterNegociacoesDaSemana(), 
+            service.obterNegociacoesDaSemanaAnterior(),
+            service.obterNegociacoesDaSemanaRetrasada()]
+        ).then(negociacoes => {
+            negociacoes
+                .reduce((arrayAchatado, array) => arrayAchatado.concat(array),[])
+                .forEach(negociacao => this._listaNegociacoes.adiciona(negociacao)); 
+            this._mensagem.texto = 'Negociações importadas com sucesso';
+        })
+        .catch(erro => this._mensagem.texto = erro);    
+    }
+
     apaga() {
         this._listaNegociacoes.esvazia();
         this._negociacoesView(this._listaNegociacoes);
-        this._mensagem.texto = "Negociações apagadas com sucesso";
+        this._mensagem.texto = 'Negociações apagadas com sucesso';
     }
     _criaNegociacao() {
         return new Negociacao(
