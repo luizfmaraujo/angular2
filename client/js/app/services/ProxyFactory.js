@@ -12,8 +12,10 @@ class ProxyFactory {
                 return Reflect.get(target, prop, receiver);
             },
             set(target, prop, value, receiver) {
-                Reflect.set(target, prop, value, receiver);
-                acao(target);
+                    
+                let retorno = Reflect.set(target, prop, value, receiver);
+                if(props.includes(prop)) acao(target);
+                return retorno;
             }
         })
     }
